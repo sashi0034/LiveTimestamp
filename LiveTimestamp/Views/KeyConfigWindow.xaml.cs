@@ -10,7 +10,7 @@ namespace LiveTimestamp.Views
     /// WindowConfigKey.xaml の相互作用ロジック
     /// 参考: https://gogowaten.hatenablog.com/entry/2020/12/11/132125
     /// </summary>
-    public partial class ConfigKeyWindow : Window
+    public partial class KeyConfigWindow : Window
     {
         // 登録用ID
         private const int hotKeyId = 0x0001;
@@ -33,7 +33,7 @@ namespace LiveTimestamp.Views
         }
 
 
-        public ConfigKeyWindow(Action onPushedHotKey)
+        public KeyConfigWindow(Action onPushedHotKey)
         {
             InitializeComponent();
 

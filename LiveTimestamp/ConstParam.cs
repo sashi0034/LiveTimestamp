@@ -9,5 +9,9 @@ namespace LiveTimestamp
     public class ConstParam
     {
         public const int DeltaMilliSec = 1000 / 60;
+
+        public const string AppFileName = nameof(LiveTimestamp) + ".exe";
+
+        public const string AppProductName ="Live Timestamp";
     }
 }

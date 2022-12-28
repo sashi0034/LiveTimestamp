@@ -15,7 +15,7 @@
     </UserControl.Resources>
     <Grid>
         <Border Style="{StaticResource BackgroundElement}" BorderBrush="CornflowerBlue" x:Name="border" Width="200">
-            <TextBlock x:Name="text" Text="yyyy-MM-dd-HH-mm-ss" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="text" Text="yyyy-MM-dd-HH-mm-ss" Style="{StaticResource TextWhite}" HorizontalAlignment="Center"/>
         </Border>
     </Grid>
 </UserControl>

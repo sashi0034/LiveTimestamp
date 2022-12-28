@@ -94,9 +94,8 @@ namespace LiveTimestamp.Views
             _isActivated = true;
 
             Util.ShowWindowAboveCursor(this);
-            this.Topmost = true;
 
-            keyDownChecker.StartCheck(appRef.ConfigKeyWindow.GetSelectedKey());
+            keyDownChecker.StartCheck(appRef.KeyConfigWindow.GetSelectedKey());
 
             this.Dispatcher.Invoke(async () =>
             {

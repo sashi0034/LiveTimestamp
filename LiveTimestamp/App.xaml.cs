@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -19,28 +20,34 @@ namespace LiveTimestamp
     /// </summary>
     public partial class App : Application
     {
-        public readonly ConfigKeyWindow ConfigKeyWindow;
+        public readonly KeyConfigWindow KeyConfigWindow;
+        public readonly TsSettingWindow TsSettingWindow;
         public readonly TimestampMenuWindow TimestampMenuWindow;
 
         public App()
         {
             InitializeComponent();
             
-            ConfigKeyWindow = new ConfigKeyWindow(onPushedHotKey);
-            ConfigKeyWindow.ShowInTaskbar = false;
+            KeyConfigWindow = new KeyConfigWindow(onPushedHotKey);
+            KeyConfigWindow.ShowInTaskbar = false;
 
             TimestampMenuWindow = new TimestampMenuWindow(this);
             TimestampMenuWindow.ShowInTaskbar = false;
             TimestampMenuWindow.ShowActivated = false;
+
+            TsSettingWindow = new TsSettingWindow();
+            // TODO: フォーマットを可変に
         }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
+            checkInitialSetup();
+
             var icon = GetResourceStream(new Uri("StaticResources/app_icon.ico", UriKind.Relative)).Stream;
             var menu = new System.Windows.Forms.ContextMenuStrip();
-            menu.Items.Add("Configure shortcut key", null, (_, _) => { Util.ShowWindowAboveCursor(ConfigKeyWindow); });
+            menu.Items.Add("Configure shortcut key", null, (_, _) => { Util.ShowWindowAboveCursor(KeyConfigWindow); });
             var notifyIcon = new System.Windows.Forms.NotifyIcon
             {
                 Visible = true,
@@ -51,11 +58,29 @@ namespace LiveTimestamp
             notifyIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(onClickIcon);
         }
 
+        private void checkInitialSetup()
+        {
+            var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
+            var principal = new System.Security.Principal.WindowsPrincipal(identity);
+            if (principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator))
+            {
+                try
+                {
+                    setupAsAdmin();
+                    MessageBox.Show($"Finished setup", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Filed to setup\n" + ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
         private void onClickIcon(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (e.Button == Forms.MouseButtons.Left)
             {
-                Util.ShowWindowAboveCursor(ConfigKeyWindow);
+                Util.ShowWindowAboveCursor(KeyConfigWindow);
             }
         }
 
@@ -86,6 +111,25 @@ namespace LiveTimestamp
         private void shutdownApp(object sender, EventArgs e)
         {
             Shutdown();
+        }
+
+        /// <summary>
+        /// CurrentUserのRunにアプリケーションの実行ファイルパスを登録する
+        /// </summary>
+        private void setupAsAdmin()
+        {
+            Microsoft.Win32.RegistryKey registrykey =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
+
+            registrykey.SetValue(ConstParam.AppProductName, GetCurrentAppDir + @"\" + ConstParam.AppFileName);
+
+            registrykey.Close();
+        }
+
+        public static string? GetCurrentAppDir()
+        {
+            return System.IO.Path.GetDirectoryName(
+                System.Reflection.Assembly.GetExecutingAssembly().Location);
         }
     }
 }
