@@ -10,7 +10,7 @@ namespace LiveTimestamp.Views
     /// WindowConfigKey.xaml の相互作用ロジック
     /// 参考: https://gogowaten.hatenablog.com/entry/2020/12/11/132125
     /// </summary>
-    public partial class WindowConfigKey : Window
+    public partial class ConfigKeyWindow : Window
     {
         // 登録用ID
         private const int hotKeyId = 0x0001;
@@ -28,7 +28,7 @@ namespace LiveTimestamp.Views
         private static extern int UnregisterHotKey(IntPtr hWnd, int id);
 
 
-        public WindowConfigKey(Action onPushedHotKey)
+        public ConfigKeyWindow(Action onPushedHotKey)
         {
             InitializeComponent();
 
@@ -51,6 +51,17 @@ namespace LiveTimestamp.Views
             checkAlt.IsChecked = true;
             checkShift.IsChecked = true;
             comboBoxKey.SelectedValue = Key.T;
+
+            registerKey();
+        }
+
+        private (int, string) registerKey()
+        {
+            var (modifier, keyBind) = readModifierChecks();
+            var key = (Key)comboBoxKey.SelectedValue;
+            keyBind += keyBind != "" ? $" + {key}" : $"{key}";
+            int result = RegisterHotKey(windowHandle, hotKeyId, modifier, KeyInterop.VirtualKeyFromKey(key));
+            return (result, keyBind);
         }
 
         // アプリ終了時に登録解除
@@ -65,20 +76,16 @@ namespace LiveTimestamp.Views
         // ホットキー登録
         private void buttonRegister_Click(object sender, RoutedEventArgs e)
         {
-            var (modifier, str) = readModifierChecks();
-
-            var key = (Key)comboBoxKey.SelectedValue;
             UnregisterHotKey(windowHandle, hotKeyId);
+            var (result, keyBind) = registerKey();
 
-            if (RegisterHotKey(windowHandle, hotKeyId, modifier, KeyInterop.VirtualKeyFromKey(key)) == 0)
+            if (result == 0)
             {
                 MessageBox.Show("登録に失敗");
             }
             else
             {
-                str += $" + {key}";
-                str = str.Remove(0, 3);
-                MessageBox.Show($"{str} を登録しました");
+                MessageBox.Show($"{keyBind} を登録しました");
             }
         }
 
@@ -90,7 +97,7 @@ namespace LiveTimestamp.Views
             if (checkCtrl.IsChecked == true) { str += $" + Ctrl"; modifier += (int)ModifierKeys.Control; }
             if (checkShift.IsChecked == true) { str += $" + Shift"; modifier += (int)ModifierKeys.Shift; }
             if (checkWin.IsChecked == true) { str += $" + Win"; modifier += (int)ModifierKeys.Windows; }
-            return (modifier, str);
+            return (modifier, str!="" ? str.Remove(0, 3) : "");
         }
 
 
@@ -132,6 +139,12 @@ namespace LiveTimestamp.Views
             }
 
             e.Handled = true;
+        }
+
+        private void window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+            this.Hide();
         }
     }
 }
