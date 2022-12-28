@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Forms = System.Windows.Forms;
 
 namespace LiveTimestamp
@@ -19,12 +20,18 @@ namespace LiveTimestamp
     public partial class App : Application
     {
         public readonly ConfigKeyWindow ConfigKeyWindow;
+        public readonly TimestampMenuWindow TimestampMenuWindow;
 
         public App()
         {
             InitializeComponent();
+            
             ConfigKeyWindow = new ConfigKeyWindow(onPushedHotKey);
             ConfigKeyWindow.ShowInTaskbar = false;
+
+            TimestampMenuWindow = new TimestampMenuWindow();
+            TimestampMenuWindow.ShowInTaskbar = false;
+            TimestampMenuWindow.ShowActivated = false;
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -33,7 +40,7 @@ namespace LiveTimestamp
 
             var icon = GetResourceStream(new Uri("StaticResources/app_icon.ico", UriKind.Relative)).Stream;
             var menu = new System.Windows.Forms.ContextMenuStrip();
-            menu.Items.Add("終了", null, Exit_Click);
+            menu.Items.Add("Configure shortcut key", null, (_, _) => { showConfigKeyWindow(); });
             var notifyIcon = new System.Windows.Forms.NotifyIcon
             {
                 Visible = true,
@@ -48,38 +55,43 @@ namespace LiveTimestamp
         {
             if (e.Button == Forms.MouseButtons.Left)
             {
-                var mousePos = System.Windows.Forms.Cursor.Position;
-                ConfigKeyWindow.Left = Math.Max(0, mousePos.X - ConfigKeyWindow.Width);
-                ConfigKeyWindow.Top = Math.Max(0, mousePos.Y - ConfigKeyWindow.Height);
-                ConfigKeyWindow.Show();
+                showConfigKeyWindow();
             }
+        }
+
+        private void showConfigKeyWindow()
+        {
+            var mousePos = System.Windows.Forms.Cursor.Position;
+            ConfigKeyWindow.Left = Math.Max(0, mousePos.X - ConfigKeyWindow.Width);
+            ConfigKeyWindow.Top = Math.Max(0, mousePos.Y - ConfigKeyWindow.Height);
+            ConfigKeyWindow.Show();
         }
 
         private void onPushedHotKey()
         {
+            inputTimestamp();
+        }
+
+        private void inputTimestamp()
+        {
+            if (TimestampMenuWindow.IsActivated) return;
+            TimestampMenuWindow.StartPopup();
+
             this.Dispatcher.Invoke(new Action(async () =>
             {
-                await sendTimestampInput();
+                await Util.WaitUntil(() => TimestampMenuWindow.IsActivated == false);
+                await sendInputTimestamp();
             }));
         }
 
-        private static async Task sendTimestampInput()
+        private static async Task sendInputTimestamp()
         {
-            while (true)
-            {
-                if (!Keyboard.IsKeyDown(Key.LeftCtrl) &&
-                    !Keyboard.IsKeyDown(Key.LeftShift) &&
-                    !Keyboard.IsKeyDown(Key.LeftAlt) &&
-                    !Keyboard.IsKeyDown(Key.LWin)) break;
-                await Task.Delay(ConstParam.DeltaMilliSec);
-            }
-
             var inputContent = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
             Forms.SendKeys.SendWait(inputContent);
             Debug.WriteLine("sent: " + inputContent);
         }
 
-        private void Exit_Click(object sender, EventArgs e)
+        private void shutdownApp(object sender, EventArgs e)
         {
             Shutdown();
         }
