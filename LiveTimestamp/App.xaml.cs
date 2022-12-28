@@ -17,7 +17,7 @@ namespace LiveTimestamp
         {
             base.OnStartup(e);
 
-            var icon = GetResourceStream(new Uri("app_icon.ico", UriKind.Relative)).Stream;
+            var icon = GetResourceStream(new Uri("StaticResources/app_icon.ico", UriKind.Relative)).Stream;
             var menu = new System.Windows.Forms.ContextMenuStrip();
             menu.Items.Add("終了", null, Exit_Click);
             var notifyIcon = new System.Windows.Forms.NotifyIcon
@@ -27,16 +27,21 @@ namespace LiveTimestamp
                 Text = "Live Timestamp",
                 ContextMenuStrip = menu
             };
-            notifyIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(NotifyIcon_Click);
+            notifyIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(onClickIcon);
         }
 
-        private void NotifyIcon_Click(object sender, System.Windows.Forms.MouseEventArgs e)
+        private void onClickIcon(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
-                var wnd = new MainWindow();
-                wnd.Show();
+                var window = new Views.WindowConfigKey(onPushedHotKey);
+                window.Show();
             }
+        }
+
+        private void onPushedHotKey()
+        {
+            MessageBox.Show("HotKey1");
         }
 
         private void Exit_Click(object sender, EventArgs e)

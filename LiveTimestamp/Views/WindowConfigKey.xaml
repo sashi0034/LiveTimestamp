@@ -1,14 +1,16 @@
-﻿<Window x:Class="LiveTimestamp.MainWindow"
+﻿<Window x:Class="LiveTimestamp.Views.WindowConfigKey"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:LiveTimestamp"
+        xmlns:local="clr-namespace:LiveTimestamp.Views"
         mc:Ignorable="d"
-        Title="MainWindow" Height="200" Width="260">
+        x:Name="window"
+        Closed="window_Closed"
+        Title="WindowConfigKey" Height="200" Width="250">
     <Grid>
         <Grid>
-            <StackPanel>
+            <StackPanel VerticalAlignment="Center">
                 <GroupBox Header="ModKey修飾キー">
                     <StackPanel Orientation="Horizontal" Margin="2">
                         <CheckBox x:Name="checkAlt" Content="Alt" Margin="8"/>
