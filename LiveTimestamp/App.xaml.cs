@@ -29,7 +29,7 @@ namespace LiveTimestamp
             ConfigKeyWindow = new ConfigKeyWindow(onPushedHotKey);
             ConfigKeyWindow.ShowInTaskbar = false;
 
-            TimestampMenuWindow = new TimestampMenuWindow();
+            TimestampMenuWindow = new TimestampMenuWindow(this);
             TimestampMenuWindow.ShowInTaskbar = false;
             TimestampMenuWindow.ShowActivated = false;
         }
@@ -40,7 +40,7 @@ namespace LiveTimestamp
 
             var icon = GetResourceStream(new Uri("StaticResources/app_icon.ico", UriKind.Relative)).Stream;
             var menu = new System.Windows.Forms.ContextMenuStrip();
-            menu.Items.Add("Configure shortcut key", null, (_, _) => { showConfigKeyWindow(); });
+            menu.Items.Add("Configure shortcut key", null, (_, _) => { Util.ShowWindowAboveCursor(ConfigKeyWindow); });
             var notifyIcon = new System.Windows.Forms.NotifyIcon
             {
                 Visible = true,
@@ -55,16 +55,8 @@ namespace LiveTimestamp
         {
             if (e.Button == Forms.MouseButtons.Left)
             {
-                showConfigKeyWindow();
+                Util.ShowWindowAboveCursor(ConfigKeyWindow);
             }
-        }
-
-        private void showConfigKeyWindow()
-        {
-            var mousePos = System.Windows.Forms.Cursor.Position;
-            ConfigKeyWindow.Left = Math.Max(0, mousePos.X - ConfigKeyWindow.Width);
-            ConfigKeyWindow.Top = Math.Max(0, mousePos.Y - ConfigKeyWindow.Height);
-            ConfigKeyWindow.Show();
         }
 
         private void onPushedHotKey()
@@ -80,13 +72,13 @@ namespace LiveTimestamp
             this.Dispatcher.Invoke(new Action(async () =>
             {
                 await Util.WaitUntil(() => TimestampMenuWindow.IsActivated == false);
-                await sendInputTimestamp();
+                await sendInputTimestamp(TimestampMenuWindow.SelectedFormat);
             }));
         }
 
-        private static async Task sendInputTimestamp()
+        private static async Task sendInputTimestamp(string format)
         {
-            var inputContent = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+            var inputContent = DateTime.Now.ToString(format);
             Forms.SendKeys.SendWait(inputContent);
             Debug.WriteLine("sent: " + inputContent);
         }

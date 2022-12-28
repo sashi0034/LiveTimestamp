@@ -16,5 +16,13 @@ namespace LiveTimestamp
                 if (func() == true) break;
             }
         }
+
+        public static void ShowWindowAboveCursor(System.Windows.Window window)
+        {
+            var mousePos = System.Windows.Forms.Cursor.Position;
+            window.Left = Math.Max(0, mousePos.X - window.Width);
+            window.Top = Math.Max(0, mousePos.Y - window.Height);
+            window.Show();
+        }
     }
 }

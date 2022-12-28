@@ -27,6 +27,11 @@ namespace LiveTimestamp.Views
         [DllImport("user32.dll")]
         private static extern int UnregisterHotKey(IntPtr hWnd, int id);
 
+        public Key GetSelectedKey()
+        {
+            return (Key)(comboBoxKey.SelectedValue);
+        }
+
 
         public ConfigKeyWindow(Action onPushedHotKey)
         {
@@ -58,7 +63,7 @@ namespace LiveTimestamp.Views
         private (int, string) registerKey()
         {
             var (modifier, keyBind) = readModifierChecks();
-            var key = (Key)comboBoxKey.SelectedValue;
+            var key = GetSelectedKey();
             keyBind += keyBind != "" ? $" + {key}" : $"{key}";
             int result = RegisterHotKey(windowHandle, hotKeyId, modifier, KeyInterop.VirtualKeyFromKey(key));
             return (result, keyBind);

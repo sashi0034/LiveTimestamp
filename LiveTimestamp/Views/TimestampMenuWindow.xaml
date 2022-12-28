@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LiveTimestamp.Views"
         mc:Ignorable="d"
-        Title="TimestampMenuWindow" Height="320" Width="200"
+        Title="TimestampMenuWindow" Height="320" Width="250"
+        AllowsTransparency="True" WindowStyle="None" Background="{x:Null}"
         x:Name="window">
     <Window.Resources>
         <ResourceDictionary>
@@ -14,7 +15,14 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <Grid Background="{StaticResource DarkNormal}">
-        <TextBlock Text="yyyy-MM-dd-HH-mm-ss"/>
+    <Grid Background="Transparent">
+        <Border Style="{StaticResource BackgroundPopup}">
+            <StackPanel>
+                <TextBlock Text="⏱️ Select format ⏱️" HorizontalAlignment="Center" Foreground="WhiteSmoke"/>
+                <StackPanel x:Name="panelElements">
+                    <local:TimestampElementLine/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>
