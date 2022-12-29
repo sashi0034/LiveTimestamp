@@ -83,9 +83,9 @@ namespace LiveTimestamp.Views
         {
             return new List<TimeStampElementProp>()
             {
-                new TimeStampElementProp("yy-MM-dd-HH-mm-ss"),
-                new TimeStampElementProp("_yy_MM_dd_HH_mm_ss"),
-                new TimeStampElementProp("yyMMddHHmmss"),
+                new TimeStampElementProp("yyyy-MM-dd-HH-mm-ss"),
+                new TimeStampElementProp("_yyyy_MM_dd_HH_mm_ss"),
+                new TimeStampElementProp("yyyyMMddHHmmss"),
             };
         }
 

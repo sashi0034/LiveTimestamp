@@ -121,7 +121,7 @@ namespace LiveTimestamp
             Microsoft.Win32.RegistryKey registrykey =
                 Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
 
-            registrykey.SetValue(ConstParam.AppProductName, GetCurrentAppDir + @"\" + ConstParam.AppFileName);
+            registrykey.SetValue(ConstParam.AppProductName, GetCurrentAppDir() + @"\" + ConstParam.AppFileName);
 
             registrykey.Close();
         }
